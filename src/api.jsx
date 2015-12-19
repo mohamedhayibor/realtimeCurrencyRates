@@ -8,8 +8,8 @@ var rootUrl = 'https://openexchangerates.org/api/latest.json?app_id=****** inclu
 module.exports = {
 	get: function () {
 		return fetch(rootUrl)
-    	  .then(function(response) {
-    	    return response.json()
-    	  })
+	    	  .then(function(response) {
+	    	    return response.json()
+	    	  })
 	}
 };
