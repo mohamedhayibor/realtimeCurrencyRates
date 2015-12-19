@@ -1,22 +1,39 @@
+var Api = require('./api');
 var React = require('react');
+var Reflux = require('reflux');
 var currencies = require('./currencies');
-var rates = require('./rates').rates;
 var Converter = require('./converter');
+var RatesStore = require('./rates-store');
+var Actions = require('./actions');
+
 
 var Main = React.createClass({
-
+  mixins: [
+    Reflux.listenTo(RatesStore, 'onChange')
+  ],
+  getInitialState: function () {
+    return {
+      rates : {}
+    }
+  },
+  componentWillMount: function () {
+    Actions.getRates()
+  },
   render: function() {
-  	var names = this.props;
     var result = [];
+    var names = this.state.rates;
 
-    Object.keys(this.props).forEach(function (i) {
-    	result.push(
-    		<li className="list-group-item" key={i}> {i + ' - ' + names[i] + ': ' }
-    			  <span className="badge"> {(rates[i] || '')}</span>
-    		</li>
-    	);
-
+    // gets all currency codes (keys) into an array then push each label into
+    // the result array
+    Object.keys(this.state.rates).forEach(function (i) {
+      result.push(
+        <li className="list-group-item" key={i}> {i + ' - ' + currencies[i] + ': ' }
+            <span className="badge"> {(names[i] || '')}</span>
+        </li>
+      );
     });
+    
+    // allows us to get divide the table into 3 columns
     var divider = Math.ceil(result.length / 3), secondDiv = divider * 2;
 
     return (<div>
@@ -26,7 +43,7 @@ var Main = React.createClass({
   			<button type="button" className="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-sm"><span className="glyphicon glyphicon-search" aria-hidden="true"></span>
 			</button>
 
-			<div className="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+			<div className="modal fade bs-example-modal-sm" tabIndex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
 			  <div className="modal-dialog modal-sm">
 			    <div className="modal-content">
 			      <h5><strong>Currency codes lookup:</strong></h5>
@@ -37,8 +54,7 @@ var Main = React.createClass({
   		</p>
 
   		<p className="lead">*Rates on the table are in comparison to the USD</p>
-
-    	<section>
+    		<section>
 		    <ul className="list-group">
 		    	<div className="col-xs-4">
 			    	{result.slice(0, divider)}
@@ -50,10 +66,13 @@ var Main = React.createClass({
 			    	{result.slice(secondDiv)}
 			    </div>
 		    </ul>
-		</section>
-	</div>)
+  		</section>
+  	</div>)
+  },
+  onChange: function (event, rates) {
+    this.setState({ rates: rates })
   }
 });
 
-var element = React.createElement(Main, currencies);
+var element = React.createElement(Main, RatesStore.getRates());
 React.render(element, document.querySelector('.converter'));
