@@ -1,8 +1,25 @@
+// This is responsible for converter bar's UI
+// fetches the rates for specific curreny codes then calculates the proper conversion amount
+
+var Api = require('./api');
 var React = require('react');
 var currencies = require('./currencies');
-var rates = require('./rates').rates;
+var RatesStore = require('./rates-store');
+var Reflux = require('reflux');
+var Actions = require('./actions');
 
 var Converter = React.createClass({
+  mixins: [
+  	Reflux.listenTo(RatesStore, 'onChange')
+  ],
+  getInitialState: function () {
+  	return {
+  		rates: {}
+  	}
+  },
+  componentWillMount: function () {
+  	Actions.getRates()
+  },
   handleClick: function(e) {
   	e.preventDefault();
 
@@ -11,7 +28,7 @@ var Converter = React.createClass({
 	var initialAmount = (document.getElementById("initialAmount").value).toUpperCase();
 	var result;
 
-	if (!(rates.hasOwnProperty(convertCode)) || !(rates.hasOwnProperty(convertedCode)) )  {
+	if (!(this.state.rates.hasOwnProperty(convertCode)) || !(this.state.rates.hasOwnProperty(convertedCode)) )  {
 		if (document.getElementById("child")) {
 			document.getElementById("collapseExample").removeChild(document.getElementById("child"));
 		}
@@ -26,7 +43,7 @@ var Converter = React.createClass({
 
 	} else {
 		// rounding 4 places
-		result = Math.round((rates[convertedCode] / rates[convertCode]) * initialAmount * 10000) / 10000; 
+		result = Math.round((this.state.rates[convertedCode] / this.state.rates[convertCode]) * initialAmount * 10000) / 10000; 
 
 		if (document.getElementById("child")) {
 			document.getElementById("collapseExample").removeChild(document.getElementById("child"));
@@ -41,9 +58,7 @@ var Converter = React.createClass({
 		document.getElementById("collapseExample").appendChild(newElement);
 
 	}
-
   },
-
   render: function() {
     return <section>
     	<div className="row">
@@ -72,6 +87,9 @@ var Converter = React.createClass({
 			</div>
 		</div>
 	</section>
+  },
+  onChange: function (event, rates) {
+  	this.setState({ rates: rates })
   }
 });
 
