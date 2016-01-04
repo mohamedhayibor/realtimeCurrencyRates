@@ -9,6 +9,7 @@ Used [Reflux](https://github.com/reflux/refluxjs) coding pattern for fetching, s
   > git clone https://github.com/mohamedhayibor/realtimeCurrencyRates.git
   > cd realtimecurrencyrates
   > "get your own api key from: https://openexchangerates.org/quick-start then update api.jsx"
+  > include your api key in src/api.jsx
   > npm install
   > gulp
 ```
